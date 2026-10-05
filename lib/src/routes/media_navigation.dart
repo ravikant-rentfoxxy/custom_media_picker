@@ -56,3 +56,7 @@ List<PickedMedia>? castMedia(Object? result) =>
 /// Use this instead of `Get.back(result: ...)`: in GetX 4 that call only
 /// dismisses a visible snackbar and returns, silently dropping the result.
 void closeWithResult(Object? result) => Get.key.currentState?.pop(result);
+
+/// Pops the top route without a result. Like [closeWithResult], it works
+/// while a snackbar is visible (`Get.back()` would only close the snackbar).
+void closeRoute() => closeWithResult(null);

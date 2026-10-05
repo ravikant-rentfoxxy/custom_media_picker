@@ -48,8 +48,12 @@ class EditItem {
   /// The current base file (for photos, changes after a crop).
   final Rx<File> current;
 
-  /// Pixel size of [current] (null while decoding).
+  /// Display aspect of [current], see [ImageUtils.sizeOf] (null while
+  /// decoding).
   final Rxn<Size> size = Rxn<Size>();
+
+  /// True when [current] couldn't be decoded.
+  final loadFailed = false.obs;
 
   final RxList<DrawStroke> strokes = <DrawStroke>[].obs;
   final RxList<TextOverlay> texts = <TextOverlay>[].obs;
@@ -62,7 +66,15 @@ class EditItem {
   bool get hasOverlays => strokes.isNotEmpty || texts.isNotEmpty;
 
   Future<void> loadSize() async {
+    final file = current.value;
     size.value = null;
-    size.value = await ImageUtils.sizeOf(current.value);
+    loadFailed.value = false;
+    try {
+      final s = await ImageUtils.sizeOf(file);
+      // Ignore a stale result if the file changed meanwhile (crop / undo).
+      if (current.value == file) size.value = s;
+    } catch (_) {
+      if (current.value == file) loadFailed.value = true;
+    }
   }
 }

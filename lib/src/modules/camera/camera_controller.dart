@@ -17,6 +17,9 @@ class CameraScreenController extends GetxController
   int _cameraIndex = 0;
   bool _initializing = false;
 
+  /// True while another screen (editor, gallery sheet) covers the camera.
+  bool _covered = false;
+
   final isReady = false.obs;
   final isBusy = false.obs;
   final error = RxnString();
@@ -67,7 +70,15 @@ class CameraScreenController extends GetxController
     );
     try {
       await controller.initialize();
+      // Screen closed while starting: onClose had nothing to dispose yet, and
+      // the camera would stay on.
+      if (isClosed) {
+        await controller.dispose();
+        return;
+      }
       await controller.setFlashMode(flashMode.value).catchError((_) {});
+      // Restarted on app resume while the editor / gallery is on top.
+      if (_covered) await controller.pausePreview().catchError((_) {});
       camera = controller;
       error.value = null;
       isReady.value = true;
@@ -116,7 +127,8 @@ class CameraScreenController extends GetxController
 
   Future<void> capture() async {
     final c = camera;
-    if (c == null || !c.value.isInitialized || c.value.isTakingPicture) return;
+    if (c == null || _covered) return;
+    if (!c.value.isInitialized || c.value.isTakingPicture) return;
     isBusy.value = true;
     try {
       final shot = await c.takePicture();
@@ -130,10 +142,15 @@ class CameraScreenController extends GetxController
   }
 
   Future<void> openRecent(AssetEntity asset) async {
+    if (isBusy.value || _covered) return;
     isBusy.value = true;
     final inputs = await MediaService.inputsOf([asset]);
     isBusy.value = false;
-    if (inputs.isNotEmpty) await _openEditor(inputs);
+    if (inputs.isEmpty) {
+      Get.rawSnackbar(message: 'Could not load the selected media');
+      return;
+    }
+    await _openEditor(inputs);
   }
 
   Future<void> openGallery() async {
@@ -159,12 +176,14 @@ class CameraScreenController extends GetxController
   }
 
   Future<void> _pausePreview() async {
+    _covered = true;
     try {
       await camera?.pausePreview();
     } catch (_) {}
   }
 
   Future<void> _resumePreview() async {
+    _covered = false;
     try {
       await camera?.resumePreview();
     } catch (_) {}

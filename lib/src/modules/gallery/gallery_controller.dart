@@ -105,14 +105,19 @@ class GalleryController extends GetxController with WidgetsBindingObserver {
     final album = currentAlbum.value;
     if (album == null || !_hasMore || _loadingMore) return;
     _loadingMore = true;
-    final list = await album.getAssetListPaged(page: _page, size: _pageSize);
-    // Ignore results if the user switched album meanwhile.
-    if (album == currentAlbum.value) {
-      assets.addAll(list);
-      _page++;
-      _hasMore = list.length == _pageSize;
+    try {
+      final list = await album.getAssetListPaged(page: _page, size: _pageSize);
+      // Ignore results if the user switched album meanwhile.
+      if (album == currentAlbum.value) {
+        assets.addAll(list);
+        _page++;
+        _hasMore = list.length == _pageSize;
+      }
+    } catch (_) {
+      // Leave _hasMore as is: the next scroll retries.
+    } finally {
+      _loadingMore = false;
     }
-    _loadingMore = false;
   }
 
   int selectionIndex(AssetEntity asset) =>

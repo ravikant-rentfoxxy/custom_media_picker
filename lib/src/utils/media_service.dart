@@ -77,18 +77,23 @@ class MediaService {
   }
 
   static Future<MediaInput?> _inputOf(AssetEntity asset) async {
-    final file = await asset.file;
-    if (file == null) return null;
-    if (asset.type != AssetType.video) return MediaInput(file: file);
-    return MediaInput(
-      file: file,
-      kind: MediaKind.video,
-      thumbnail: await asset.thumbnailDataWithSize(
-        const ThumbnailSize(600, 600),
-        quality: 85,
-      ),
-      duration: asset.videoDuration,
-    );
+    try {
+      final file = await asset.file;
+      if (file == null) return null;
+      if (asset.type != AssetType.video) return MediaInput(file: file);
+      return MediaInput(
+        file: file,
+        kind: MediaKind.video,
+        thumbnail: await asset.thumbnailDataWithSize(
+          const ThumbnailSize(600, 600),
+          quality: 85,
+        ),
+        duration: asset.videoDuration,
+      );
+    } catch (_) {
+      // e.g. an iCloud item that can't be downloaded right now.
+      return null;
+    }
   }
 
   static String albumName(AssetPathEntity path) =>

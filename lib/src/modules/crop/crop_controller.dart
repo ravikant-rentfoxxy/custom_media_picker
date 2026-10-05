@@ -61,7 +61,23 @@ class CropController extends GetxController {
   void onInit() {
     super.onInit();
     file = Get.arguments as File;
-    ImageUtils.decode(file).then((img) => image.value = img);
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final img = await ImageUtils.decode(file);
+      // Closed while decoding: onClose had nothing to dispose yet.
+      if (isClosed) {
+        img.dispose();
+      } else {
+        image.value = img;
+      }
+    } catch (_) {
+      if (isClosed) return;
+      closeRoute();
+      Get.snackbar('Error', 'Could not open this image for cropping');
+    }
   }
 
   /// Image size after rotation, in pixels.
@@ -240,9 +256,9 @@ class CropController extends GetxController {
 
   Future<void> done() async {
     final img = image.value;
-    if (img == null) return;
+    if (img == null || isSaving.value) return;
     if (!isChanged) {
-      Get.back();
+      closeRoute();
       return;
     }
     isSaving.value = true;
@@ -254,6 +270,8 @@ class CropController extends GetxController {
         cropRect: cropRect.value,
       );
       closeWithResult(out);
+    } catch (_) {
+      Get.snackbar('Error', 'Could not save the cropped image');
     } finally {
       isSaving.value = false;
     }

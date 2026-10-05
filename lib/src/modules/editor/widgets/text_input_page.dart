@@ -80,7 +80,7 @@ class _TextInputPageState extends State<TextInputPage> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: Get.back,
+                    onPressed: closeRoute,
                   ),
                   const Spacer(),
                   TextButton(

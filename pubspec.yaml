@@ -4,11 +4,12 @@ description: >-
   with photos and videos, custom camera, and an editor with crop, rotate,
   draw, text and captions.
 version: 0.1.0
-publish_to: none
+repository: https://github.com/ravikant-rentfoxxy/custom_media_picker
+issue_tracker: https://github.com/ravikant-rentfoxxy/custom_media_picker/issues
 
 environment:
-  sdk: ^3.11.0
-  flutter: ">=3.24.0"
+  sdk: ^3.10.0
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:

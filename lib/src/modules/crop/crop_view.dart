@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../routes/media_navigation.dart';
 import 'crop_controller.dart';
 
 class CropView extends GetView<CropController> {
@@ -35,7 +36,7 @@ class _TopBar extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: Get.back,
+          onPressed: closeRoute,
         ),
         const Spacer(),
         IconButton(

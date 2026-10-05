@@ -51,7 +51,7 @@ class EditorController extends GetxController {
 
   void removeItem(int index) {
     if (items.length <= 1) {
-      Get.back();
+      closeRoute();
       return;
     }
     current.caption = captionController.text;
@@ -163,12 +163,18 @@ class EditorController extends GetxController {
   Future<void> openCrop() async {
     mode.value = EditMode.none;
     final item = current;
-    if (item.isVideo) return;
+    if (item.isVideo || isBusy.value) return;
     var base = item.current.value;
     if (item.hasOverlays) {
       isBusy.value = true;
-      base = await ImageUtils.flatten(item);
-      isBusy.value = false;
+      try {
+        base = await ImageUtils.flatten(item);
+      } catch (_) {
+        Get.snackbar('Error', 'Could not prepare the image for cropping');
+        return;
+      } finally {
+        isBusy.value = false;
+      }
     }
     final cropped = await openCropRoute(base);
     if (cropped == null) return;

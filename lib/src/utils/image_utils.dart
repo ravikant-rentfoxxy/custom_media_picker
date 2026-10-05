@@ -25,9 +25,15 @@ class ImageUtils {
     return frame.image;
   }
 
-  /// Size as Flutter displays it (EXIF orientation applied by the decoder).
+  /// Size as Flutter displays it (EXIF orientation applied by the decoder),
+  /// scaled down: the aspect ratio is exact but the pixel size isn't. Decoding
+  /// at full size would cost ~48 MB per 12 MP photo, for every picked item.
   static Future<Size> sizeOf(File file) async {
-    final image = await decode(file);
+    final bytes = await file.readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes, targetWidth: 256);
+    final frame = await codec.getNextFrame();
+    codec.dispose();
+    final image = frame.image;
     final size = Size(image.width.toDouble(), image.height.toDouble());
     image.dispose();
     return size;

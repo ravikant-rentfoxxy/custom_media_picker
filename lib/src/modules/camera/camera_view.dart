@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../widgets/asset_thumbnail.dart';
+import '../../routes/media_navigation.dart';
 import 'camera_controller.dart';
 
 class CameraView extends GetView<CameraScreenController> {
@@ -159,7 +160,7 @@ class _TopBar extends GetView<CameraScreenController> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Row(
         children: [
-          _RoundButton(icon: Icons.close, onPressed: Get.back),
+          _RoundButton(icon: Icons.close, onPressed: closeRoute),
           const Spacer(),
           Obx(
             () => _RoundButton(

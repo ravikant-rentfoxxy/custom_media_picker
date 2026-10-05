@@ -10,18 +10,11 @@ It doesn't use `image_picker` or `image_cropper`. The photo library is read with
 
 ## Install
 
-The package isn't published; add it by path or from git:
-
-```yaml
-dependencies:
-  chat_media_picker:
-    path: ../chat_media_picker
-  # or
-  chat_media_picker:
-    git:
-      url: https://github.com/<you>/<repo>.git
-      path: chat_media_picker
+```sh
+flutter pub add chat_media_picker get
 ```
+
+Requires Flutter 3.38 or later. Android and iOS are supported.
 
 The app must use **`GetMaterialApp`**, because the picker navigates with GetX.
 

@@ -1,0 +1,19 @@
+name: chat_media_picker_example
+description: Example app for the chat_media_picker package.
+publish_to: none
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  get: ^4.7.3
+  chat_media_picker:
+    path: ../
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

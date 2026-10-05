@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../chat_media_picker.dart';
+import '../../routes/media_navigation.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/color_slider.dart';
 import '../../widgets/video_view.dart';
@@ -126,7 +127,7 @@ class _TopBar extends GetView<EditorController> {
             else
               IconButton(
                 icon: const Icon(Icons.close, color: iconColor, size: 28),
-                onPressed: Get.back,
+                onPressed: closeRoute,
               ),
             const Spacer(),
             if (canUndo)

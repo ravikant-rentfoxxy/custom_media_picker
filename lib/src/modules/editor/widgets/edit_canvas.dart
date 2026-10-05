@@ -16,10 +16,23 @@ class EditCanvas extends GetView<EditorController> {
 
   @override
   Widget build(BuildContext context) {
+    // Decode at screen resolution, not camera resolution. Based on the screen
+    // (not the canvas) so the keyboard resizing the canvas doesn't re-decode.
+    final screen = MediaQuery.sizeOf(context);
+    final cacheWidth =
+        (screen.longestSide * MediaQuery.devicePixelRatioOf(context)).round();
     return LayoutBuilder(
       builder: (context, constraints) => Obx(() {
         final size = item.size.value;
         final file = item.current.value;
+        if (item.loadFailed.value) {
+          return const Center(
+            child: Text(
+              'Could not load this image',
+              style: TextStyle(color: Colors.white70),
+            ),
+          );
+        }
         if (size == null) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.white),
@@ -44,6 +57,7 @@ class EditCanvas extends GetView<EditorController> {
                   child: Image.file(
                     file,
                     fit: BoxFit.fill,
+                    cacheWidth: cacheWidth,
                     gaplessPlayback: true,
                   ),
                 ),
