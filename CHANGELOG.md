@@ -3,6 +3,7 @@
 * New attachment sheet. Gallery, Camera and Document options sit over the
   recent photos. Dragging up crossfades the options into the "Recents"
   header, expands to the full gallery and dims the screen behind it.
+* Camera tile as the first cell of the photo grid.
 * File picker ("Document" option). Files come back as `PickedMedia` with
   `MediaKind.file`, `name` and `size`. New `formatFileSize` helper.
 * `ChatMediaPickerConfig.enableGallery`, `enableCamera`, `enableFilePicker`,
