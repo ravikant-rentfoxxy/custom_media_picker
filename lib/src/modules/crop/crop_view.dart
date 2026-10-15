@@ -148,8 +148,11 @@ class _RatioBar extends GetView<CropController> {
                   selected: current == r.value,
                   onSelected: (_) => controller.setRatio(r.value),
                   showCheckmark: false,
-                  backgroundColor: Colors.white10,
-                  selectedColor: Colors.white,
+                  // Set through [color] so the host app's chip theme (Material
+                  // 3 tints unselected chips light) can't override it.
+                  color: WidgetStatePropertyAll(
+                    current == r.value ? Colors.white : Colors.white10,
+                  ),
                   labelStyle: TextStyle(
                     color: current == r.value ? Colors.black : Colors.white,
                   ),
