@@ -164,6 +164,46 @@ void main() {
     );
   });
 
+  testWidgets('the close button closes the collapsed sheet', (tester) async {
+    await open(tester, const ChatMediaPickerConfig());
+    expect(find.byTooltip('Close'), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Document'), findsNothing);
+    expect(await result, isNull);
+  });
+
+  testWidgets('the close button fades out as the gallery expands', (
+    tester,
+  ) async {
+    await open(tester, const ChatMediaPickerConfig());
+    await tester.tap(find.text('Gallery'));
+    await tester.pumpAndSettle();
+    // Only the title bar's close button is left.
+    expect(find.byTooltip('Close'), findsNothing);
+    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(_opacityOf(find.text('Recents')), 1);
+  });
+
+  testWidgets('the options-only panel has a close button too', (tester) async {
+    await open(tester, const ChatMediaPickerConfig(enableGallery: false));
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Document'), findsNothing);
+    expect(await result, isNull);
+  });
+
+  testWidgets('showCloseButton: false hides it', (tester) async {
+    await open(tester, const ChatMediaPickerConfig(showCloseButton: false));
+    expect(find.byTooltip('Close'), findsNothing);
+    await closeSheet(tester);
+    await open(
+      tester,
+      const ChatMediaPickerConfig(enableGallery: false, showCloseButton: false),
+    );
+    expect(find.byTooltip('Close'), findsNothing);
+  });
+
   test('returns null when every option is disabled', () async {
     ChatMediaPicker.config = const ChatMediaPickerConfig(
       enableGallery: false,

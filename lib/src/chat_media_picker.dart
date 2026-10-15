@@ -13,6 +13,7 @@ class ChatMediaPickerConfig {
     this.enableFilePicker = true,
     this.allowMultipleFiles = true,
     this.allowedFileExtensions,
+    this.showCloseButton = true,
     this.theme = const ChatMediaPickerTheme(),
   });
 
@@ -42,6 +43,10 @@ class ChatMediaPickerConfig {
   /// Restricts the file picker to these extensions, without the dot (e.g.
   /// `['pdf', 'docx']`). Null allows any file.
   final List<String>? allowedFileExtensions;
+
+  /// Close button at the top right of the attachment sheet, beside the drag
+  /// handle. It fades out as the gallery expands, whose title bar has its own.
+  final bool showCloseButton;
 
   /// Colours of the attachment sheet.
   final ChatMediaPickerTheme theme;

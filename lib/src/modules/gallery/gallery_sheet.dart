@@ -63,6 +63,9 @@ Future<List<PickedMedia>?> openGallerySheet({bool fromCamera = false}) async {
 }
 
 const _handleHeight = 18.0;
+
+/// Handle row with the close button beside the handle.
+const _closeRowHeight = 44.0;
 const _titleBarHeight = 52.0;
 
 class GallerySheet extends StatefulWidget {
@@ -87,6 +90,10 @@ class _GallerySheetState extends State<GallerySheet> {
 
   GalleryController get controller => widget.controller;
   bool get _hasOptions => !controller.fromCamera;
+
+  /// The close button beside the handle. Opened from the camera, the gallery
+  /// title bar (with its own close button) is always shown instead.
+  bool get _showClose => ChatMediaPicker.config.showCloseButton && _hasOptions;
 
   @override
   void initState() {
@@ -169,6 +176,7 @@ class _GallerySheetState extends State<GallerySheet> {
         controller: controller,
         options: options,
         theme: theme,
+        showClose: ChatMediaPicker.config.showCloseButton,
       );
     }
 
@@ -179,7 +187,7 @@ class _GallerySheetState extends State<GallerySheet> {
         .clamp(0.5, 1.0);
     // Collapsed: handle, options and about a row and a third of photos.
     final collapsedHeight =
-        _handleHeight +
+        (_showClose ? _closeRowHeight : _handleHeight) +
         _OptionsGrid.heightFor(options.length) +
         screen.width / 4 * 1.35 +
         padding.bottom;
@@ -231,6 +239,7 @@ class _GallerySheetState extends State<GallerySheet> {
                       progress: _progress,
                       options: options,
                       theme: theme,
+                      onClose: _showClose ? _close : null,
                     ),
                     _SelectionBar(
                       controller: controller,
@@ -255,11 +264,13 @@ class _OptionsPanel extends StatelessWidget {
     required this.controller,
     required this.options,
     required this.theme,
+    required this.showClose,
   });
 
   final GalleryController controller;
   final List<_AttachOption> options;
   final ChatMediaPickerTheme theme;
+  final bool showClose;
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +287,10 @@ class _OptionsPanel extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _Handle(theme: theme),
+                _Handle(
+                  theme: theme,
+                  onClose: showClose ? () => Navigator.of(context).pop() : null,
+                ),
                 _OptionsGrid(options: options, theme: theme),
                 const SizedBox(height: 8),
               ],
@@ -319,6 +333,7 @@ class _Content extends StatelessWidget {
     required this.progress,
     required this.options,
     required this.theme,
+    required this.onClose,
   });
 
   final GalleryController controller;
@@ -326,6 +341,7 @@ class _Content extends StatelessWidget {
   final ValueListenable<double> progress;
   final List<_AttachOption> options;
   final ChatMediaPickerTheme theme;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -348,6 +364,7 @@ class _Content extends StatelessWidget {
                 progress: progress,
                 options: options,
                 theme: theme,
+                onClose: onClose,
               ),
             ),
             if (status == GalleryStatus.loading)
@@ -379,25 +396,68 @@ class _Content extends StatelessWidget {
   }
 }
 
+/// Drag handle, with a close button on the right when [onClose] is set. With
+/// [progress], the close button fades out as the sheet expands (the gallery
+/// title bar has its own).
 class _Handle extends StatelessWidget {
-  const _Handle({required this.theme});
+  const _Handle({required this.theme, this.onClose, this.progress});
 
   final ChatMediaPickerTheme theme;
+  final VoidCallback? onClose;
+  final ValueListenable<double>? progress;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: _handleHeight,
-      child: Center(
-        child: Container(
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: theme.handleColor,
-            borderRadius: BorderRadius.circular(2),
-          ),
+    final handle = Center(
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: theme.handleColor,
+          borderRadius: BorderRadius.circular(2),
         ),
       ),
+    );
+    final onClose = this.onClose;
+    if (onClose == null) {
+      return SizedBox(height: _handleHeight, child: handle);
+    }
+    final close = IconButton(
+      tooltip: 'Close',
+      icon: Icon(Icons.close, color: theme.iconColor, size: 24),
+      onPressed: onClose,
+    );
+    Widget row(double t) {
+      final opacity = (1 - t / .6).clamp(0.0, 1.0);
+      return SizedBox(
+        // Shrinks back to the plain handle as the gallery expands.
+        height: lerpDouble(_closeRowHeight, _handleHeight, t),
+        child: Stack(
+          children: [
+            handle,
+            if (opacity > 0)
+              Positioned(
+                top: 0,
+                right: 4,
+                bottom: 0,
+                child: IgnorePointer(
+                  ignoring: t > .5,
+                  child: Opacity(
+                    opacity: opacity,
+                    child: ClipRect(child: close),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    final progress = this.progress;
+    if (progress == null) return row(0);
+    return ValueListenableBuilder<double>(
+      valueListenable: progress,
+      builder: (_, t, _) => row(t),
     );
   }
 }
@@ -412,12 +472,14 @@ class _Header extends StatelessWidget {
     required this.progress,
     required this.options,
     required this.theme,
+    required this.onClose,
   });
 
   final GalleryController controller;
   final ValueListenable<double> progress;
   final List<_AttachOption> options;
   final ChatMediaPickerTheme theme;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +491,7 @@ class _Header extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Handle(theme: theme),
+          _Handle(theme: theme, onClose: onClose, progress: progress),
           ValueListenableBuilder<double>(
             valueListenable: progress,
             builder: (_, t, _) {

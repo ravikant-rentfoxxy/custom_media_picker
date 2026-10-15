@@ -92,10 +92,18 @@ class _AssetThumbnailState extends State<AssetThumbnail> {
             child: Row(
               children: [
                 const Icon(Icons.videocam, color: Colors.white, size: 16),
-                const Spacer(),
-                Text(
-                  formatDuration(widget.asset.videoDuration),
-                  style: const TextStyle(color: Colors.white, fontSize: 11),
+                const SizedBox(width: 2),
+                // Small thumbnails (e.g. album covers) can't fit both: the
+                // duration shrinks rather than overflowing.
+                Expanded(
+                  child: Text(
+                    formatDuration(widget.asset.videoDuration),
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                  ),
                 ),
               ],
             ),

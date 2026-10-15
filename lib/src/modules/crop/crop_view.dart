@@ -143,25 +143,57 @@ class _RatioBar extends GetView<CropController> {
             for (final r in CropController.ratios)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ChoiceChip(
-                  label: Text(r.label),
+                child: _RatioPill(
+                  label: r.label,
                   selected: current == r.value,
-                  onSelected: (_) => controller.setRatio(r.value),
-                  showCheckmark: false,
-                  // Set through [color] so the host app's chip theme (Material
-                  // 3 tints unselected chips light) can't override it.
-                  color: WidgetStatePropertyAll(
-                    current == r.value ? Colors.white : Colors.white10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: current == r.value ? Colors.black : Colors.white,
-                  ),
-                  side: BorderSide.none,
+                  onTap: () => controller.setRatio(r.value),
                 ),
               ),
           ],
         );
       }),
+    );
+  }
+}
+
+/// Ratio option drawn by hand rather than with a ChoiceChip: chips take their
+/// fill, tint, shape and text style from the host app's theme, which can make
+/// them unreadable on the black crop screen (light fill under white text).
+class _RatioPill extends StatelessWidget {
+  const _RatioPill({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.white12,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.black : Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              // Ignore the host's text theme decorations.
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

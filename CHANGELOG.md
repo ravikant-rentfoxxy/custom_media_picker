@@ -11,7 +11,12 @@
 * File picker ("Document" option). Files come back as `PickedMedia` with
   `MediaKind.file`, `name` and `size`. New `formatFileSize` helper.
 * `ChatMediaPickerConfig.enableGallery`, `enableCamera`, `enableFilePicker`,
-  `allowMultipleFiles` and `allowedFileExtensions`.
+  `allowMultipleFiles`, `allowedFileExtensions` and `showCloseButton` (a close
+  button beside the drag handle, on by default).
+* Camera tile as the first cell of the photo grid.
+* Crop ratio options no longer pick up the host app's chip theme (they could
+  turn unreadable).
+* Video badge no longer overflows on small thumbnails (album covers).
 * `ChatMediaPickerTheme` (light default and `.dark()`), set through
   `ChatMediaPickerConfig.theme`.
 * Screenshots on pub.dev, captured by `example/integration_test/screenshots_test.dart`.
