@@ -1,9 +1,8 @@
 name: chat_media_picker
 description: >-
-  Chat attachment picker for Flutter (GetX): themeable, draggable attach
-  sheet with gallery (photos and videos), camera and file picker options,
-  plus an editor with crop, rotate, draw, text and captions.
-version: 0.2.0
+  Chat attachment picker: draggable sheet with gallery,
+  camera and file picker, plus an editor with crop, draw, text and captions.
+version: 0.2.1
 repository: https://github.com/ravikant-rentfoxxy/custom_media_picker
 issue_tracker: https://github.com/ravikant-rentfoxxy/custom_media_picker/issues
 

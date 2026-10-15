@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Shorter package description.
+
 ## 0.2.0
 
 * New attachment sheet. Gallery, Camera and Document options sit over the
