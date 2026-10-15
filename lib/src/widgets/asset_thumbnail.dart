@@ -6,12 +6,20 @@ import 'package:photo_manager/photo_manager.dart';
 import '../models/picked_media.dart';
 
 /// Loads and caches a gallery thumbnail directly from the native library.
-/// Videos get a WhatsApp-style camera icon + duration badge.
+/// Videos get a camera icon + duration badge.
 class AssetThumbnail extends StatefulWidget {
-  const AssetThumbnail({super.key, required this.asset, this.size = 250});
+  const AssetThumbnail({
+    super.key,
+    required this.asset,
+    this.size = 250,
+    this.placeholderColor = const Color(0xFF2A2A2A),
+  });
 
   final AssetEntity asset;
   final int size;
+
+  /// Shown while the thumbnail loads.
+  final Color placeholderColor;
 
   @override
   State<AssetThumbnail> createState() => _AssetThumbnailState();
@@ -63,7 +71,7 @@ class _AssetThumbnailState extends State<AssetThumbnail> {
   Widget build(BuildContext context) {
     final bytes = _bytes;
     final image = bytes == null
-        ? const ColoredBox(color: Color(0xFF2A2A2A))
+        ? ColoredBox(color: widget.placeholderColor)
         : Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true);
     if (widget.asset.type != AssetType.video) return image;
     return Stack(

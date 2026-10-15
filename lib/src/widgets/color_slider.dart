@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// WhatsApp-style vertical gradient color picker.
+/// Vertical gradient color picker.
 class ColorSlider extends StatelessWidget {
   const ColorSlider({
     super.key,

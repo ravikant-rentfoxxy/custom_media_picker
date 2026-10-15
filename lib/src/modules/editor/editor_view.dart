@@ -235,7 +235,7 @@ class _BottomBar extends GetView<EditorController> {
               const Spacer(),
               FloatingActionButton(
                 heroTag: null,
-                backgroundColor: AppColors.accent,
+                backgroundColor: ChatMediaPicker.config.theme.accentColor,
                 foregroundColor: Colors.white,
                 shape: const CircleBorder(),
                 onPressed: controller.send,
@@ -268,7 +268,7 @@ class _Thumbnails extends GetView<EditorController> {
           itemBuilder: (_, i) {
             final isSelected = i == selected;
             return GestureDetector(
-              // Tapping the selected thumbnail removes it, like WhatsApp.
+              // Tapping the selected thumbnail removes it.
               onTap: () =>
                   isSelected ? controller.removeItem(i) : controller.jumpTo(i),
               child: Container(
@@ -276,7 +276,9 @@ class _Thumbnails extends GetView<EditorController> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: isSelected ? AppColors.accent : Colors.transparent,
+                    color: isSelected
+                        ? ChatMediaPicker.config.theme.accentColor
+                        : Colors.transparent,
                     width: 2,
                   ),
                 ),

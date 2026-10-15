@@ -11,7 +11,7 @@ class TextInputResult {
   final Color color;
 }
 
-/// Full-screen translucent text entry, shown over the image (WhatsApp "T").
+/// Full-screen translucent text entry, shown over the image (the "T" tool).
 class TextInputPage extends StatefulWidget {
   const TextInputPage({super.key, required this.text, required this.color});
 

@@ -14,7 +14,7 @@ class CameraView extends GetView<CameraScreenController> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        // Swipe up anywhere to open the full gallery, like WhatsApp.
+        // Swipe up anywhere to open the full gallery.
         onVerticalDragEnd: (d) {
           if ((d.primaryVelocity ?? 0) < -300) controller.openGallery();
         },
@@ -183,7 +183,8 @@ class _RecentStrip extends GetView<CameraScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    // About six thumbnails visible across the screen, like WhatsApp.
+    if (!controller.galleryEnabled) return const SizedBox.shrink();
+    // About six thumbnails visible across the screen.
     final tile = MediaQuery.sizeOf(context).width / 5.5;
     return Column(
       children: [
@@ -238,11 +239,15 @@ class _Controls extends GetView<CameraScreenController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _RoundButton(
-            icon: Icons.photo_outlined,
-            size: 60,
-            onPressed: controller.openGallery,
-          ),
+          if (controller.galleryEnabled)
+            _RoundButton(
+              icon: Icons.photo_outlined,
+              size: 60,
+              onPressed: controller.openGallery,
+            )
+          else
+            // Keeps the shutter centered.
+            const SizedBox(width: 60),
           GestureDetector(
             onTap: controller.capture,
             child: Container(

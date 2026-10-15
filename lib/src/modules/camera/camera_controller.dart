@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+import '../../chat_media_picker.dart';
 import '../../routes/media_navigation.dart';
 import '../../utils/media_service.dart';
 import '../gallery/gallery_sheet.dart';
@@ -95,6 +96,7 @@ class CameraScreenController extends GetxController
   /// Recent photos for the strip. Doesn't prompt: photo access is asked for
   /// when the user opens the gallery.
   Future<void> _loadRecent() async {
+    if (!galleryEnabled) return;
     final state = await MediaService.permissionState();
     if (!state.hasAccess) return;
     recent.assignAll(await MediaService.recent());
@@ -153,9 +155,14 @@ class CameraScreenController extends GetxController
     await _openEditor(inputs);
   }
 
+  /// False when the host disabled the gallery: no recent strip or gallery
+  /// button, and photo access is never asked for.
+  bool get galleryEnabled => ChatMediaPicker.config.enableGallery;
+
   Future<void> openGallery() async {
+    if (!galleryEnabled) return;
     await _pausePreview();
-    final result = await openGallerySheet(showCamera: false);
+    final result = await openGallerySheet(fromCamera: true);
     if (result != null && result.isNotEmpty) {
       closeWithResult(result);
     } else {

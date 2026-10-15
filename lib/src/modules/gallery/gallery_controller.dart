@@ -3,21 +3,27 @@ import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../../chat_media_picker.dart';
+import '../../models/picked_media.dart';
 import '../../routes/media_navigation.dart';
+import '../../utils/file_service.dart';
 import '../../utils/media_service.dart';
 
 enum GalleryStatus { loading, denied, ready }
 
-/// Drives the WhatsApp-style gallery bottom sheet.
+/// Drives the attachment sheet (options panel + gallery).
 class GalleryController extends GetxController with WidgetsBindingObserver {
-  GalleryController({this.showCamera = true});
+  GalleryController({this.fromCamera = false});
 
-  int get maxSelection => ChatMediaPicker.config.maxSelection;
+  ChatMediaPickerConfig get _config => ChatMediaPicker.config;
+  int get maxSelection => _config.maxSelection;
   static const _pageSize = 80;
 
-  /// Show the "Camera" tile as the first grid cell (hidden when the sheet is
-  /// opened from the camera screen itself).
-  final bool showCamera;
+  /// Opened from the camera screen: gallery only, no options panel.
+  final bool fromCamera;
+
+  bool get showGallery => fromCamera || _config.enableGallery;
+  bool get showCamera => !fromCamera && _config.enableCamera;
+  bool get showFiles => !fromCamera && _config.enableFilePicker;
 
   final status = GalleryStatus.loading.obs;
   final isLimited = false.obs;
@@ -35,6 +41,7 @@ class GalleryController extends GetxController with WidgetsBindingObserver {
   @override
   void onInit() {
     super.onInit();
+    if (!showGallery) return;
     WidgetsBinding.instance.addObserver(this);
     init();
   }
@@ -163,6 +170,33 @@ class GalleryController extends GetxController with WidgetsBindingObserver {
   Future<void> openCamera() async {
     final result = await openCameraRoute();
     if (result != null && result.isNotEmpty) closeWithResult(result);
+  }
+
+  /// "Document" option: system file picker. Picked files are returned as is.
+  Future<void> pickFiles() async {
+    if (isPreparing.value) return;
+    isPreparing.value = true;
+    List<PickedMedia> files;
+    try {
+      files = await FileService.pick(
+        multiple: _config.allowMultipleFiles,
+        extensions: _config.allowedFileExtensions,
+      );
+    } catch (_) {
+      Get.rawSnackbar(message: 'Could not open the file picker');
+      return;
+    } finally {
+      isPreparing.value = false;
+    }
+    if (files.isEmpty) return; // Cancelled.
+    if (files.length > maxSelection) {
+      files = files.sublist(0, maxSelection);
+      Get.rawSnackbar(
+        message: 'Only the first $maxSelection files were attached',
+        duration: const Duration(seconds: 2),
+      );
+    }
+    closeWithResult(files);
   }
 
   Future<void> _openEditor(List<AssetEntity> picked) async {

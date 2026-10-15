@@ -1,20 +1,53 @@
 import 'models/picked_media.dart';
 import 'modules/gallery/gallery_sheet.dart';
 import 'routes/media_navigation.dart';
+import 'theme/chat_media_picker_theme.dart';
 
 /// Options for the picker flow.
 class ChatMediaPickerConfig {
-  const ChatMediaPickerConfig({this.maxSelection = 10, this.recipientName});
+  const ChatMediaPickerConfig({
+    this.maxSelection = 10,
+    this.recipientName,
+    this.enableGallery = true,
+    this.enableCamera = true,
+    this.enableFilePicker = true,
+    this.allowMultipleFiles = true,
+    this.allowedFileExtensions,
+    this.theme = const ChatMediaPickerTheme(),
+  });
 
-  /// Maximum number of photos/videos selectable in one go.
+  /// Maximum number of photos/videos (or files) selectable in one go.
   final int maxSelection;
 
   /// Shown as a chip next to the send button in the editor (e.g. the chat
   /// name). Hidden when null.
   final String? recipientName;
+
+  /// "Gallery" option and the photo grid of the attachment sheet. When false
+  /// the sheet is a compact options panel and photo access is never asked
+  /// for.
+  final bool enableGallery;
+
+  /// "Camera" option of the attachment sheet.
+  final bool enableCamera;
+
+  /// "Document" option of the attachment sheet: picks any file with the
+  /// system file picker. Files are returned as is (no editor), with
+  /// [MediaKind.file].
+  final bool enableFilePicker;
+
+  /// Let the user pick several files at once (up to [maxSelection]).
+  final bool allowMultipleFiles;
+
+  /// Restricts the file picker to these extensions, without the dot (e.g.
+  /// `['pdf', 'docx']`). Null allows any file.
+  final List<String>? allowedFileExtensions;
+
+  /// Colours of the attachment sheet.
+  final ChatMediaPickerTheme theme;
 }
 
-/// Entry points of the WhatsApp-style attachment picker.
+/// Entry points of the chat attachment picker.
 ///
 /// Requires the app to use `GetMaterialApp`. Every method returns the picked
 /// (and edited) media, or null if the user closed the picker.
@@ -23,8 +56,11 @@ abstract final class ChatMediaPicker {
   /// pass `config` to [openGallery] / [openCamera].
   static ChatMediaPickerConfig config = const ChatMediaPickerConfig();
 
-  /// Attach button: gallery bottom sheet with a "Camera" tile, photos and
-  /// videos, multi-select, then the editor.
+  /// Attach button: options panel (Gallery, Camera, Document) over a strip of
+  /// recent photos. Dragging it up expands it into the full gallery with
+  /// multi-select; picked photos then go through the editor.
+  ///
+  /// Returns null right away if every option is disabled.
   static Future<List<PickedMedia>?> openGallery({
     ChatMediaPickerConfig? config,
   }) {
