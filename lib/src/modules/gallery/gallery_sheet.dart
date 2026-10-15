@@ -116,9 +116,14 @@ class _GallerySheetState extends State<GallerySheet> {
   void _close() {
     if (_closing) return;
     _closing = true;
-    // May be called from a drag or snap callback: pop after the frame.
+    // May be called from a drag or snap callback: pop after the frame. By then
+    // the sheet may already be closing (e.g. the system back gesture), and
+    // popping again would close the host's screen instead.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      if (ModalRoute.of(context)?.isCurrent ?? false) {
+        Navigator.of(context).pop();
+      }
     });
   }
 
@@ -204,6 +209,9 @@ class _GallerySheetState extends State<GallerySheet> {
             initialChildSize: _collapsed,
             minChildSize: 0,
             maxChildSize: _expanded,
+            // [_close] pops the sheet; the route's BottomSheet must not pop it
+            // as well when the extent reaches 0.
+            shouldCloseOnMinExtent: false,
             snap: true,
             snapSizes: [if (_collapsed < _expanded) _collapsed],
             snapAnimationDuration: const Duration(milliseconds: 250),
