@@ -1,3 +1,13 @@
+## 0.2.2
+
+* Close button beside the drag handle of the attachment sheet
+  (`ChatMediaPickerConfig.showCloseButton`, on by default). It fades out as
+  the gallery expands, whose title bar has its own.
+* Crop ratio options no longer pick up the host app's chip theme (they could
+  turn unreadable).
+* Video badge no longer overflows on small thumbnails (album covers).
+* Shorter README.
+
 ## 0.2.1
 
 * Shorter package description.
@@ -11,12 +21,7 @@
 * File picker ("Document" option). Files come back as `PickedMedia` with
   `MediaKind.file`, `name` and `size`. New `formatFileSize` helper.
 * `ChatMediaPickerConfig.enableGallery`, `enableCamera`, `enableFilePicker`,
-  `allowMultipleFiles`, `allowedFileExtensions` and `showCloseButton` (a close
-  button beside the drag handle, on by default).
-* Camera tile as the first cell of the photo grid.
-* Crop ratio options no longer pick up the host app's chip theme (they could
-  turn unreadable).
-* Video badge no longer overflows on small thumbnails (album covers).
+  `allowMultipleFiles` and `allowedFileExtensions`.
 * `ChatMediaPickerTheme` (light default and `.dark()`), set through
   `ChatMediaPickerConfig.theme`.
 * Screenshots on pub.dev, captured by `example/integration_test/screenshots_test.dart`.

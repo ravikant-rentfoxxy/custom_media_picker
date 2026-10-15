@@ -1,0 +1,28 @@
+# Publishes to pub.dev when a version tag is pushed, e.g.
+#   git tag v0.2.3 && git push origin v0.2.3
+# The tag must match `version:` in pubspec.yaml. Requires "Publishing from
+# GitHub Actions" enabled on pub.dev (package Admin tab) for this repository
+# with the tag pattern v{{version}}.
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC token used to authenticate with pub.dev
+    steps:
+      - uses: actions/checkout@v4
+      # Sets up the pub.dev credentials from the OIDC token.
+      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter pub publish --force
