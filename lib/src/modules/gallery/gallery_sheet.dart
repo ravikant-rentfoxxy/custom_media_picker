@@ -674,6 +674,8 @@ class _Grid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      // The Camera tile is the first cell.
+      final offset = controller.showCamera ? 1 : 0;
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 2),
         sliver: SliverGrid.builder(
@@ -682,9 +684,12 @@ class _Grid extends StatelessWidget {
             mainAxisSpacing: 2,
             crossAxisSpacing: 2,
           ),
-          itemCount: controller.assets.length,
+          itemCount: controller.assets.length + offset,
           itemBuilder: (_, i) {
-            final asset = controller.assets[i];
+            if (i < offset) {
+              return _CameraTile(onTap: controller.openCamera, theme: theme);
+            }
+            final asset = controller.assets[i - offset];
             return _Tile(
               key: ValueKey(asset.id),
               controller: controller,
@@ -695,6 +700,38 @@ class _Grid extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class _CameraTile extends StatelessWidget {
+  const _CameraTile({required this.onTap, required this.theme});
+
+  final VoidCallback onTap;
+  final ChatMediaPickerTheme theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: theme.optionBackgroundColor,
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.camera_alt_rounded,
+              color: theme.cameraIconColor,
+              size: 34,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Camera',
+              style: TextStyle(fontSize: 14, color: theme.secondaryTextColor),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

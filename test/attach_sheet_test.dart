@@ -42,6 +42,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> closeSheet(WidgetTester tester) async {
+    Get.key.currentState?.pop();
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('expands from the options panel to the gallery and back', (
     tester,
   ) async {
@@ -125,6 +130,38 @@ void main() {
     expect(sheet.color, theme.backgroundColor);
     final icon = tester.widget<Icon>(find.byIcon(Icons.camera_alt_rounded));
     expect(icon.color, theme.cameraIconColor);
+  });
+
+  testWidgets('the Camera tile is the first cell of the photo grid', (
+    tester,
+  ) async {
+    // Access granted, empty library: the grid holds only the Camera tile.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_photoChannel, (call) async {
+          return switch (call.method) {
+            'requestPermissionExtend' => 3, // authorized
+            'getAssetPathList' => {'data': <Object>[]},
+            _ => null,
+          };
+        });
+    await open(tester, const ChatMediaPickerConfig());
+    final grid = find.byType(SliverGrid);
+    expect(grid, findsOneWidget);
+    expect(
+      find.descendant(of: grid, matching: find.text('Camera')),
+      findsOneWidget,
+    );
+    await closeSheet(tester);
+
+    // Hidden with the camera disabled.
+    await open(tester, const ChatMediaPickerConfig(enableCamera: false));
+    expect(
+      find.descendant(
+        of: find.byType(SliverGrid),
+        matching: find.text('Camera'),
+      ),
+      findsNothing,
+    );
   });
 
   test('returns null when every option is disabled', () async {

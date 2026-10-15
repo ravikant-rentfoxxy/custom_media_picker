@@ -35,8 +35,9 @@ void main() {
   Future<void> openSheet(WidgetTester tester, {bool photos = true}) async {
     await tester.tap(find.byKey(const ValueKey('attach')));
     await wait(tester, 800);
-    // Wait for the library to load, then for the thumbnails to decode.
-    for (var i = 0; photos && i < 30 && tiles().evaluate().isEmpty; i++) {
+    // Wait for the library to load (the Camera tile is there from the start),
+    // then for the thumbnails to decode.
+    for (var i = 0; photos && i < 30 && tiles().evaluate().length < 12; i++) {
       await wait(tester, 500);
     }
     await wait(tester, 1500);

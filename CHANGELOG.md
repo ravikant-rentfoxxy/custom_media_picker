@@ -13,8 +13,7 @@
 * The example app now includes its `android` and `ios` folders.
 * **Breaking:** iOS 14.0 is now the minimum (required by `file_picker`).
 * **Breaking:** `MediaKind` has a new `file` value, so exhaustive `switch`es
-  over it need a new case. The "Camera" tile in the photo grid was replaced by
-  the Camera option.
+  over it need a new case.
 
 ## 0.1.0
 
